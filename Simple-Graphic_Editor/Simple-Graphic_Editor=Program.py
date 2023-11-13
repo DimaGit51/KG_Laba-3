@@ -18,6 +18,9 @@ root.option_add("*tearOff", FALSE)
 cnv = Canvas(bg="white", width=ScreenX, height=ScreenY)
 cnv.pack(anchor=N, fill="both", expand=1)
 
+BlackPixel = []
+RedPixel = []
+
 def NewPosition():
     root.geometry("+0+0")
 def SaveScreen():
@@ -27,6 +30,10 @@ def exit_click():
     root.destroy()
 def menu_ClearScreen():
     cnv.delete("all")
+    global BlackPixel
+    global RedPixel
+    BlackPixel = []
+    RedPixel = []
 def menu_ClearСursor():
     cnv.delete("ln")
 
@@ -89,7 +96,8 @@ main_menu.add_cascade(label="Draw-lines", menu=draw_menuline)
 main_menu.add_cascade(label="Draw-PaintOver", menu=draw_menupaint)
 
 
-BlackPixel = []
+
+
 def DrawDrawing(event):
     x = event.x
     y = event.y
@@ -103,6 +111,10 @@ def DrawDrawing(event):
 
 def ClearScreen(event):
     cnv.delete("all")
+    global BlackPixel
+    global RedPixel
+    BlackPixel = []
+    RedPixel = []
 def ClearСursor(event):
     cnv.delete("ln")
 def Сursor(event):
@@ -131,7 +143,6 @@ def PointXY(event):
     cnv.create_text(x0, y0+12, text="0 | x: " + str(x0) + " | y: " + str(y0), fill="#00BFFF")
 x0_ = 0
 y0_ = 0
-RedPixel = []
 def PointXY_(event):
     global x0_; global y0_
     x0_ = event.x
@@ -149,6 +160,7 @@ def Point_X_Y(event):
 
 
 def NaturalAlgorithmLine():
+    global BlackPixel
     global x0
     global y0
     a = 0
@@ -229,8 +241,8 @@ def NaturalAlgorithmLine():
                 BlackPixel.append([x, x*a+b - 1])
                 Point(x, x*a+b)
                 x += 1
-
 def BresenhamAlgorithmLine():
+    global BlackPixel
     x = x0
     y = y0
     dx = x1 - x0
@@ -392,10 +404,43 @@ def NaturalAlgorithmCircle():
     Y = abs(y1 - y0)
     R = math.sqrt(pow(X, 2) + pow(Y, 2))
     x = x0 - R
-    while x < x0 + R:
-        Point(x, y0 + math.sqrt(pow(R, 2) - pow(abs(x - x0), 2)))
-        Point(x, y0 - math.sqrt(pow(R, 2) - pow(abs(x - x0), 2)))
-        x += 1
+    y = y0 - R
+    # while x < x0 + R:
+    #     Point(x, y0 + math.sqrt(pow(R, 2) - pow(abs(x - x0), 2)))
+    #     Point(x, y0 - math.sqrt(pow(R, 2) - pow(abs(x - x0), 2)))
+    #     x += 1
+    while y < y0 + R:
+        Point(x0 + math.sqrt(pow(R,2) - pow(y, 2) + 2*y*y0 - pow(y, 2)), y)
+        Point(x0 - math.sqrt(pow(R,2) - pow(y, 2) + 2*y*y0 - pow(y, 2)), y)
+        y += 1
+
+def Draw8Pixel(x, y, x0, y0, color):
+    cnv.create_rectangle(x+x0, y+y0, x+x0+1, y+y0+1, fill=color, outline=color)
+    cnv.create_rectangle(x + x0, -y + y0, x + x0+1, -y + y0+1, fill=color, outline=color)
+    cnv.create_rectangle(-x + x0, y + y0, -x + x0+1, y + y0+1, fill=color, outline=color)
+    cnv.create_rectangle(-x + x0, -y + y0, -x + x0+1, -y + y0+1, fill=color, outline=color)
+    cnv.create_rectangle(y + x0, x + y0, y + x0+1, x + y0+1, fill=color, outline=color)
+    cnv.create_rectangle(y + x0, -x + y0, y + x0+1, -x + y0+1, fill=color, outline=color)
+    cnv.create_rectangle(-y + x0, x + y0, -y + x0+1, x + y0+1, fill=color, outline=color)
+    cnv.create_rectangle(-y + x0, -x + y0, -y + x0+1, -x + y0+1, fill=color, outline=color)
+
+def BarezenhamCircle():
+    print('ok')
+    X = abs(x1 - x0)
+    Y = abs(y1 - y0)
+    R = int(math.sqrt(pow(X, 2) + pow(Y, 2)))
+    x = 0
+    y = R
+    d = int(3 - 2*R)
+    while (y >= x):
+        print(x, y)
+        Draw8Pixel(x, y, x0, y0, 'black')
+        if d <= 0:
+            d += 4*x + 6
+        else:
+            d += 4*(x-y)+10
+            y-=1
+        x+=1
 
 def Recursive_NaturalAlgorithm(pixel):
     global RedPixel
@@ -420,33 +465,33 @@ def RecursiveAlgorithmSeed():
     except RecursionError as err:
         showerror(title="!!!Ошибка!!!", message="Превышено количество пикселей закраски!!! (более 1000 пикселей)")
 
-pattern = [['black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'white', 'white', 'white'],
+pattern = [['red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'white', 'white', 'white'],
 
-           ['black', 'black', 'black',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white'],
 
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'black',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white'],
 
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white'],
 
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'white', 'white', 'white'],
 
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white',      'white', 'white', 'white'],
 
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black'],
-           ['black', 'black', 'black',      'white', 'white', 'white',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black',      'black', 'black', 'black']]
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red'],
+           ['red', 'red', 'red',      'white', 'white', 'white',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red',      'red', 'red', 'red']]
 def AlgorithmBarkBeetle(pixel):
     global RedPixel
     print(BlackPixel)
@@ -479,7 +524,7 @@ def MonitorProgram(event):
     elif logic_BresenhamAlgorithmLine:
         BresenhamAlgorithmLine()
     elif logic_NaturalAlgorithmCircle:
-        NaturalAlgorithmCircle()
+        BarezenhamCircle()
     elif logic_RecursiveAlgorithmSeed:
         RecursiveAlgorithmSeed()
     elif logic_AlgorithmBarkBeetle:
@@ -502,7 +547,7 @@ def PicterExp():
     NaturalAlgorithmLine()
     x0 = 300; y0 = 300
     x1 = 330; y1 = 330
-    NaturalAlgorithmCircle()
+    BarezenhamCircle()
     Recursive_NaturalAlgorithm([65,65])
 
     x0 = 100; y0 = 100
